@@ -1,0 +1,92 @@
+
+		# Resgister http://localhost:3000/node/apiS/register
+
+{
+  "name": "Hema",
+  "email_addres": "hema@gmail.com",
+  "password_field": "password123"
+}
+
+
+		# Login    http://localhost:3000/node/apiS/login
+		
+{
+  "email_addres": "hema@gmail.com",
+  "password_field":"password123"
+}		
+		
+		
+		 # Veriy-otp		http://localhost:3000/node/apiS/verify-otp
+
+
+{
+  
+  "email_addres": "mugielectronics@gmail.com",
+   "otp": "295682"
+}
+
+		
+		
+		
+
+
+
+{
+    "status": "Success",
+    "message": "Login Successfulley",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGUxZGNiNzg5ZDM4YWRmNmE0ODkxNyIsImlhdCI6MTc3NjE2NjA1OSwiZXhwIjoxNzc2MjUyNDU5fQ.y6X13b2WIpbVkHluC-DXqorLmbb7MmUDbm7OTKQYBXs",
+    "data": {
+        "id": "69de1dcb789d38adf6a48917",
+        "name": "Hemachandran",
+        "email": "hemachandranhema8754@gmail.com"
+    }
+}		
+
+
+
+
+{
+    "status": "Success",
+    "message": "Login Successfulley",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGUxZGNiNzg5ZDM4YWRmNmE0ODkxNyIsImlhdCI6MTc3NjE2NjEwOCwiZXhwIjoxNzc2MjUyNTA4fQ.BnmcBFUnJxZ1pGgzJYHxDSON9iuf7-9WvCE2YpJNEgU",
+    "data": {
+        "id": "69de1dcb789d38adf6a48917",
+        "name": "Hemachandran",
+        "email": "hemachandranhema8754@gmail.com"
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+Auth (use)
+
+POST /login
+
+POST /
+
+GET /
+
+GET /:id
+
+PUT /:id
+
+DELETE /:id
+
+
+Auth (no use)
+
+POST /register
+
+POST /verify-otp
+
+POST /forgot-password
+
+POST /logout
