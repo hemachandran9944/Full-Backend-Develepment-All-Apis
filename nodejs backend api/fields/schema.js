@@ -75,14 +75,15 @@ const otp_expiry_type = Date;
 
 
 
-user_detail_fieldsnew.pre('save', async function (){
+user_detail_fieldsnew.pre('save', async function (next){
     try {
         if (!this.isModified('password_field')) {
-            return;
+            return ;
         }
 
-        const saltRound = 10;
+        const saltRound = 12;
         this.password_field = await bcrypt.hash(this.password_field, saltRound);
+        
 
     } catch (error) {
         throw error;
@@ -99,8 +100,10 @@ user_detail_fieldsnew.pre('save', async function (){
 
 
 
+
+
  
- const user_data  = mongoose.model('Users_db',user_detail_fieldsnew);
+ const user_data  = mongoose.model('CURD_APIs',user_detail_fieldsnew);
  module.exports = user_data; 
  
  

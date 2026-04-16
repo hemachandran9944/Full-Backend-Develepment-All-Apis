@@ -44,6 +44,9 @@ const isTransporter_OTP = nodemailer.createTransport({
     }
 }); 
 
+
+                    // Gmail Resgister Otp//
+
 const sendRegisterOTP = async (email_addres, name, generate_OTP) => {
 
     const gmail_setting = {
@@ -66,12 +69,12 @@ const sendRegisterOTP = async (email_addres, name, generate_OTP) => {
 
         // Forget Password Otp gmial msg//
 
-const sendForgetPasswordOTP = async (email, name, otp) => {
+const sendForgetPasswordOTP = async (email_id, name, otp) => {
 
     const forget_passeord_gmial_msg = {
 
         from: process.env.email_users,
-        to: email,
+        to: email_id,
         subject: "Password Reset Request - Mugi Electronics",
         text: `Hi ${name},\n\n` +
               `You have requested to reset your password for your Mugi Electronics account.\n\n` +

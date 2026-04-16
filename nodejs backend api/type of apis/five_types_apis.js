@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 
 
 
+
                     // Register APIs//
 
 router_apiS.post('/register', async(req, res )=>{
@@ -97,7 +98,7 @@ router_apiS.post('/register', async(req, res )=>{
 
 
 
-                // verify-otp-resgister //
+                // resgister-otp-verify //
 
 router_apiS.post('/verify-otp-resgister', async (req, res, )=>{
     try {
@@ -151,16 +152,16 @@ router_apiS.post('/verify-otp-resgister', async (req, res, )=>{
 
 router_apiS.post('/forget-password-otp', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email_id,  } = req.body;
 
-    if (!email) {
+    if (!email_id) {
       return res.status(400).json({
         status: "Failed",
         message: "Email is required"
       });
     }
 
-    const user_Gmial_iD = await users_details.findOne({ email_addres: email, });
+    const user_Gmial_iD = await users_details.findOne({ email_addres: email_id });
 
     
     if (!user_Gmial_iD) {
@@ -172,15 +173,15 @@ router_apiS.post('/forget-password-otp', async (req, res) => {
 
     
 
-    const otp_ten_menits = Math.floor(100000 + Math.random() * 900000).toString();
+    const Otp_genarate = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry_ten_minutes = new Date(Date.now() + 10 * 60 * 1000);
 
 
-    await sendForgetPasswordOTP(email, otp_ten_menits);
+    await sendForgetPasswordOTP(email_id, user_Gmial_iD.name, Otp_genarate);
 
     // update user in DB
 
-    user_Gmial_iD.otp = otp_ten_menits;
+    user_Gmial_iD.otp = Otp_genarate;
     user_Gmial_iD.Otp_verifaid = false;
     user_Gmial_iD.otp_expiry_ten_menites = otpExpiry_ten_minutes;
 
@@ -194,7 +195,7 @@ router_apiS.post('/forget-password-otp', async (req, res) => {
       status: "Success",
       message: "OTP sent to your email",
       data: {
-        email: email
+        email: email_id
           
       }
 
@@ -224,6 +225,79 @@ router_apiS.post('/forget-password-otp', async (req, res) => {
 
 
 
+                        //  Forget-Password-Otp-Verfied//
+
+
+router_apiS.post('/reset-password', async (req, res)=>{
+    try {
+
+        const{email_addres, newPassword, confirmPassword, otp} = req.body;
+        const user_gmialID = await users_details.findOne({ email_addres });
+
+
+        if (newPassword !== confirmPassword ) {
+
+            return res.status(400).json({
+                message: "Passwords do not match!"
+            });
+            
+        }
+
+        if (!user_gmialID) {
+            return res.status(400).json({
+                message: "User not found!"
+            });
+            
+        }
+
+
+        
+
+        
+
+        if (user_gmialID.otp === otp) {
+            if (new Date() > user_gmialID.otp_expiry_ten_menites) {
+                return res.status(400).json({
+                    status: "Failed",
+                    message: "OTP has expired. Please request a new one."
+                });
+
+                
+            }
+            user_gmialID.password_field =  newPassword;
+            user_gmialID.Otp_verifaid = true;
+            user_gmialID.otp = null;
+            user_gmialID.otp_expiry_ten_menites = null;
+            await user_gmialID.save();
+            res.status(200).json({
+                status: "Success",
+                message: "Password has been reset successfully!",
+                //data: user_gmialID
+            });
+            
+        } else {
+            res.status(400).json({
+                status: "Failed",
+                message: "Invalid OTP. Please check your email.",
+                error: error.message
+                
+            });
+            
+        }
+    
+
+
+
+        
+    } catch (error) {
+
+        res.status(500).json({
+            status: "Failed",
+            message: error.message 
+        });
+        
+    }
+});
 
 
 
@@ -238,7 +312,7 @@ router_apiS.post('/forget-password-otp', async (req, res) => {
 
             // Login API //
 
-router_apiS.post('/login', async(req, res )=>{
+router_apiS.post('/login',  async(req, res )=>{
     try {
 
         const { email_addres, password_field } = req.body;
@@ -292,6 +366,7 @@ router_apiS.post('/login', async(req, res )=>{
 
 
 
+
         
     } catch (error) {
         const  login_flaid = "Login Falied";
@@ -309,6 +384,34 @@ router_apiS.post('/login', async(req, res )=>{
 
 
 });
+
+
+
+                //  Logout APIs//
+
+
+
+router_apiS.post('/logout', (req, res)=>{
+    try {
+        res.status(200).json({
+            status: "Success",
+            message: "Logged out successfully!"
+        });
+    } catch (error) {
+
+        res.status(500).json({
+            status: "Failed",
+            message: error.message
+        });
+        
+    }
+});
+
+
+
+
+
+
 
 
 
