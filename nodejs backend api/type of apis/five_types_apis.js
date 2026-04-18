@@ -19,7 +19,8 @@ router_apiS.post('/register', async(req, res )=>{
         const {
             name,
             email_addres, 
-            password_field
+            password_field,
+            mobile_number
         } = req.body
 
         const userExit = await users_details.findOne({email_addres});
@@ -54,6 +55,7 @@ router_apiS.post('/register', async(req, res )=>{
             name,
             email_addres,
             password_field,
+            mobile_number,
             otp: generate_OTP,
             otp_expiry: otpExpiry,
             Otp_verifaid: false
@@ -102,8 +104,8 @@ router_apiS.post('/register', async(req, res )=>{
 
 router_apiS.post('/verify-otp-resgister', async (req, res, )=>{
     try {
-        const{email_addres, otp} = req.body
-        const users_id  = await users_details.findOne({email_addres});
+        const{email_addres, otp } = req.body
+        const users_id  = await users_details.findOne({email_addres });
         if (!users_id) {
             return res.status(404).json({
                 status: "Failed",
@@ -152,7 +154,7 @@ router_apiS.post('/verify-otp-resgister', async (req, res, )=>{
 
 router_apiS.post('/forget-password-otp', async (req, res) => {
   try {
-    const { email_id,  } = req.body;
+    const { email_id  } = req.body;
 
     if (!email_id) {
       return res.status(400).json({
@@ -315,13 +317,13 @@ router_apiS.post('/reset-password', async (req, res)=>{
 router_apiS.post('/login',  async(req, res )=>{
     try {
 
-        const { email_addres, password_field } = req.body;
-        const user_gmialid  = await users_details.findOne({email_addres});
+        const { email_addres, password_field, mobile_number } = req.body;
+        const user_gmialid  = await users_details.findOne({email_addres, mobile_number});
 
     if (!user_gmialid) {
 
         const status_field = "Failed";
-        const respone_msg = "User not found with this email address";
+        const respone_msg = "User not found with this email address and mobile number";
 
          return  res.status(401).json({
             status: status_field,
@@ -385,6 +387,111 @@ router_apiS.post('/login',  async(req, res )=>{
 
 });
 
+                // Users Data get APIs 
+
+router_apiS.get('/user_profile/:id', authorization_token, async (req, res)=>{
+    try {
+        const User_iD = req.params.id;  
+        const  user_data = await users_details.findById(User_iD).select('-password_field -otp -otp_expiry_ten_menites');
+
+        if (!user_data) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "user not found"
+            });
+            
+        } 
+
+        res.status(200).json({
+            status: "Success",
+            message: "Get user profils successfulley",
+            data: user_data
+        });
+
+
+    } catch (error) {
+
+         
+
+        res.status(500).json({
+            status: "Failed",
+            error: error.message
+              
+        });
+
+        
+        
+    }
+});
+
+
+
+                // user data upadte APIs
+router_apiS.put('/user_data_update/:id',authorization_token, async (req, res)=>{
+    try {
+
+        
+        const user_id  = req.params.id;
+        const { name, email_addres, mobile_number } = req.body;
+        const updata_user_data = await users_details.findById(user_id).select('-password_field -otp -otp_expiry_ten_menites  ');
+
+        if (!updata_user_data) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "User  not found"
+            });
+            
+        }
+
+        
+
+        if(email_addres){
+            updata_user_data.email_addres = email_addres;
+        }
+        if(name){
+            updata_user_data.name = name;    
+        }
+
+        if(mobile_number){
+            updata_user_data.mobile_number = mobile_number
+        }
+
+
+       
+
+        const User_data_update = await  updata_user_data.save();
+
+
+
+        res.status(200).json({
+            status: "Success",
+            message: "User detaild update successfulley!",
+            data: User_data_update 
+        });
+
+
+
+
+        
+    } catch (error) {
+
+        res.status(500).json({
+            status: "Failed",
+            message: "User details upadate failed",
+            error: error.message
+
+        });
+        
+    }
+});
+
+
+
+
+
+
+
+
 
 
                 //  Logout APIs//
@@ -410,6 +517,43 @@ router_apiS.post('/logout', (req, res)=>{
 
 
 
+
+                // Users Profile delete APIs
+
+
+router_apiS.delete('/user_profield_delete/:id',authorization_token, async(req, res)=>{
+    try {
+
+        const user_delete_id = req.params.id;
+        const delete_user_profile = await users_details.findByIdAndDelete(user_delete_id);
+        console.log("User Id", user_delete_id)
+
+        if (!delete_user_profile) {
+            return res.status(404).json({
+                status: "Failed",
+                message: "User not found"
+            });
+
+            
+        }
+
+
+
+        res.status(200).json({
+            status: "Success",
+            message: "User Profile delete successfulley!"
+        });
+        
+    } catch (error) {
+
+
+        res.status(500).json({
+            status: "Failed",
+            error: error.message
+        });
+        
+    }
+});
 
 
 
@@ -523,9 +667,6 @@ router_apiS.get('/',  async(req, res)=>{
       // Get Sigle user id //
 
 
-
-
-
 router_apiS.get('/:id', authorization_token, async (req, res) => { 
 
     try {
@@ -630,6 +771,31 @@ router_apiS.put('/:id', async (req, res)=>{
     }
 });
 
+            // All Detele API
+
+router_apiS.delete('/', async(req, res)=>{
+    try {
+
+        const Delete_users_result = await users_details.deleteMany({});
+        console.log(Delete_users_result.deletedCoun + " users deleted.");
+
+        res.status(200).json({
+            status: "Success",
+            message: "All users deleted Successfulley!",
+            count: Delete_users_result.deletedCount
+        });
+
+         
+        
+    } catch (error) {
+
+        res.status(500).json({
+            status: "Failed",
+            error: error.message
+        });
+        
+    }    
+});
 
 
 
